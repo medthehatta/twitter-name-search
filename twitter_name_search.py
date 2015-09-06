@@ -36,7 +36,7 @@ def get_user_code(user):
     return requests.get(user_page).status_code
 
 
-def report_code_for_user(code, user):
+def report_code_for_user(code, user, out=sys.stdout):
     """Given an HTTP return code from the user page, determines what class the
     user is in."""
     code_map = {
@@ -48,9 +48,12 @@ def report_code_for_user(code, user):
     status = code_map.get(code)
 
     if status:
-        print('{0} {1}'.format(status, user))
+        print('{0} {1}'.format(status, user), file=out)
     else:
-        print('Error getting user "{0}": HTTP response {1}'.format(user, code))
+        print(
+            'Error getting user "{0}": HTTP response {1}'.format(user, code),
+            file=out,
+        )
 
 
 def wait_for_webserver():
@@ -73,7 +76,7 @@ def resume(gen, start=0):
     for _ in range(start): next(gen)
 
 
-def main(length=3, sleep_freq=8, save_freq=10, reset=False):
+def main(length=3, sleep_freq=8, save_freq=10, reset=False, out=None):
 
     # Get the generator that produces all possible usernames with the given
     # length
@@ -95,6 +98,7 @@ def main(length=3, sleep_freq=8, save_freq=10, reset=False):
         report_code_for_user(
             get_user_code(user),
             user,
+            out=out
         )
 
 
@@ -121,6 +125,12 @@ if __name__ == '__main__':
         default=False,
         help='whether to start over or resume',
     )
+    parser.add_argument(
+        'outfile',
+        nargs='?',
+        default=sys.stdout,
+        type=argparse.FileType('w'),
+    )
 
     parsed = parser.parse_args()
 
@@ -129,5 +139,6 @@ if __name__ == '__main__':
         sleep_freq=parsed.sleep_frequency,
         save_freq=parsed.save_frequency,
         reset=parsed.reset,
+        out=parsed.outfile,
     )
 
