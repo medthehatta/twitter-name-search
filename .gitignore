@@ -1,0 +1,5 @@
+*.swo
+*.swt
+*.swp
+*.tmp
+*.pyc
