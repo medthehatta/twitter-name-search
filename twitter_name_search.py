@@ -76,7 +76,7 @@ def resume(gen, start=0):
     for _ in range(start): next(gen)
 
 
-def main(length=3, sleep_freq=8, save_freq=10, reset=False, out=None):
+def main(length=3, sleep_freq=8, save_freq=10, start=None, out=None):
 
     # Get the generator that produces all possible usernames with the given
     # length
@@ -87,7 +87,7 @@ def main(length=3, sleep_freq=8, save_freq=10, reset=False, out=None):
     progress_file = progress_filename(length)
 
     # What generator index should we resume from?
-    last = 0 if reset else resume_index(progress_file)
+    last = resume_index(progress_file) if start is None else start
     resume(user_generator, start=last)
 
     for i, user in user_generator:
@@ -119,11 +119,10 @@ if __name__ == '__main__':
         help='how frequently to save the progress',
     )
     parser.add_argument(
-        '-r',
-        '--reset',
-        action='store_true',
-        default=False,
-        help='whether to start over or resume',
+        '-n',
+        '--start',
+        type=int,
+        help='what index to start at',
     )
     parser.add_argument(
         'outfile',
@@ -138,7 +137,7 @@ if __name__ == '__main__':
         length=parsed.length,
         sleep_freq=parsed.sleep_frequency,
         save_freq=parsed.save_frequency,
-        reset=parsed.reset,
+        start=parsed.start,
         out=parsed.outfile,
     )
 
